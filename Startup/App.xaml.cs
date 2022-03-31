@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace oop_project
+namespace oop_project.Startup
 {
     /// <summary>
     /// Interaction logic for App.xaml

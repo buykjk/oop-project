@@ -11,14 +11,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace oop_project.View
+namespace oop_project.Views
 {
     /// <summary>
     /// Interaction logic for BinTreeVisView.xaml
     /// </summary>
-    public partial class BinTreeVisView : UserControl
+    public partial class BTGraphView : UserControl
     {
-        public BinTreeVisView()
+
+        public BTGraphView()
         {
             InitializeComponent();
         }

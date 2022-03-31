@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Input;
 
-namespace oop_project.Commands
+namespace oop_project.ViewModels.Commands
 {
     class DelegateCommand : ICommand
     {

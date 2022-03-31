@@ -10,4 +10,14 @@
     <FileVersion>0.0.1.0</FileVersion>
   </PropertyGroup>
 
+  <!--TODO hiding files not working-->
+  <ItemGroup>
+    <DnxInvisibleContent Include=".gitignore" />
+    <DnxInvisibleContent Include="README.MD" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="Startup\App.xaml" />
+  </ItemGroup>
+
 </Project>
