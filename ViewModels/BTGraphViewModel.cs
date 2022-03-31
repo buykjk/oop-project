@@ -29,9 +29,19 @@ namespace oop_project.ViewModels
         //    }
         //}
 
-        public ICommand AddTestNodesCommand
+        public ICommand AddNodeCommand
         {
-            get { return new DelegateCommand(AddTestNodes); }
+            get { return new DelegateCommand(AddNode); }
+        }
+
+        public ICommand DeleteNodeCommand
+        {
+            get { return new DelegateCommand(DeleteNode); }
+        }
+
+        public ICommand ResetTreeCommand
+        {
+            get { return new DelegateCommand(ResetTree); }
         }
 
         private void AddTestNodes()
@@ -46,6 +56,28 @@ namespace oop_project.ViewModels
 
             BTEdges.Add(new BTEdge((v10.Position.x, v10.Position.y), (v01.Position.x, v01.Position.y)));
             BTEdges.Add(new BTEdge((v10.Position.x, v10.Position.y), (v21.Position.x, v21.Position.y)));
+        }
+
+        private void AddNode()
+        {
+            // TODO add node to tree
+
+            // testing placeholder
+            AddTestNodes();
+        }
+
+        private void DeleteNode()
+        {
+            // TODO delete node from tree
+        }
+
+        private void ResetTree()
+        {
+            // TODO delete all tree nodes
+
+            // testing placeholder
+            BTVertices.Clear();
+            BTEdges.Clear();
         }
     }
 }
