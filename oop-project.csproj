@@ -10,6 +10,13 @@
     <FileVersion>0.0.1.0</FileVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Model\**" />
+    <EmbeddedResource Remove="Model\**" />
+    <None Remove="Model\**" />
+    <Page Remove="Model\**" />
+  </ItemGroup>
+
   <!--TODO hiding files not working-->
   <ItemGroup>
     <DnxInvisibleContent Include=".gitignore" />

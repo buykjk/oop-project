@@ -18,6 +18,21 @@ namespace oop_project.ViewModels
 
         public ObservableCollection<BTVertex> BTVertices { get; } = new ObservableCollection<BTVertex>();
         public ObservableCollection<BTEdge> BTEdges { get; } = new ObservableCollection<BTEdge>();
+        private string nodeName;
+        public string NodeName
+        {
+            get { return this.nodeName; }
+            set
+            {
+                if (!string.Equals(this.nodeName, value))
+                {
+                    this.nodeName = value;
+                    //???
+                    RaisePropertyChangedEvent("NodeName");
+                }
+            }
+        }
+        public BinaryTree Tree { get; set; } = null;
 
         //public string SomeText
         //{
@@ -31,12 +46,12 @@ namespace oop_project.ViewModels
 
         public ICommand AddNodeCommand
         {
-            get { return new DelegateCommand(AddNode); }
+            get { return new RelayCommand<string>(param => AddNode(param)); }
         }
 
-        public ICommand DeleteNodeCommand
+        public ICommand DeleteNodesCommand
         {
-            get { return new DelegateCommand(DeleteNode); }
+            get { return new DelegateCommand(DeleteNodes); }
         }
 
         public ICommand ResetTreeCommand
@@ -58,15 +73,26 @@ namespace oop_project.ViewModels
             BTEdges.Add(new BTEdge((v10.Position.x, v10.Position.y), (v21.Position.x, v21.Position.y)));
         }
 
-        private void AddNode()
+        private void AddNode(string value)
         {
             // TODO add node to tree
+            if (Tree == null)
+            {
+                Tree = new BinaryTree(Int32.Parse(value));
+            }
+            else
+            {
+                Tree.Add(Int32.Parse(value));
+            }
+
+            BTVertex v10 = new BTVertex(Tree.Value, (0, 0));
+            BTVertices.Add(v10);
 
             // testing placeholder
-            AddTestNodes();
+            //AddTestNodes();
         }
 
-        private void DeleteNode()
+        private void DeleteNodes()
         {
             // TODO delete node from tree
         }
@@ -76,6 +102,7 @@ namespace oop_project.ViewModels
             // TODO delete all tree nodes
 
             // testing placeholder
+            Tree = null;
             BTVertices.Clear();
             BTEdges.Clear();
         }
