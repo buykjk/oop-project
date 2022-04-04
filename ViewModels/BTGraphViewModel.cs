@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Newtonsoft.Json;
 using System.IO;
+using Microsoft.Win32;
 
 namespace oop_project.ViewModels
 {
@@ -61,19 +62,20 @@ namespace oop_project.ViewModels
             get { return new DelegateCommand(ResetTree); }
         }
 
-        //private void AddTestNodes()
-        //{
-        //    BTVertex v10 = new BTVertex(0, (1, 0));
-        //    BTVertex v01 = new BTVertex(-28, (0, 1));
-        //    BTVertex v21 = new BTVertex(135, (2, 1));
+        public ICommand ImportFromJsonCommand
+        {
+            get { return new DelegateCommand(ImportFromJson); }
+        }
 
-        //    BTVertices.Add(v10);
-        //    BTVertices.Add(v01);
-        //    BTVertices.Add(v21);
+        public ICommand ExportToTxtCommand
+        {
+            get { return new DelegateCommand(ExportToTxt); }
+        }
 
-        //    BTEdges.Add(new BTEdge((v10.Position.x, v10.Position.y), (v01.Position.x, v01.Position.y)));
-        //    BTEdges.Add(new BTEdge((v10.Position.x, v10.Position.y), (v21.Position.x, v21.Position.y)));
-        //}
+        public ICommand ExportToJsonCommand
+        {
+            get { return new DelegateCommand(ExportToJson); }
+        }
 
         private void AddNode(string value)
         {
@@ -91,18 +93,7 @@ namespace oop_project.ViewModels
                 Tree.Add(Int32.Parse(value));
             }
 
-            // TODO add multiple nodes to tree and draw them
-
-            //BTVertex v0 = new BTVertex(Tree.Value, (1, 0));
-            //BTVertex v1 = new BTVertex(Tree.Value, (0, 1));
-            //BTVertex v2 = new BTVertex(Tree.Value, (2, 1));
-            //BTVertices.Add(v0);
-            //BTVertices.Add(v1);
-            //BTVertices.Add(v2);
-            BTVertices.Clear();
             AddVerticesToList();
-            // testing placeholder
-            //AddTestNodes();
         }
 
         private void DeleteNodes()
@@ -112,48 +103,81 @@ namespace oop_project.ViewModels
 
         private void ResetTree()
         {
-            // TODO delete all tree nodes
-
-            // testing placeholder
+            //delete everything
             Tree = null;
             NodeName = "";
             BTVertices.Clear();
             BTEdges.Clear();
         }
 
-        private void SaveToFile(string pathToFile)
+        private void ExportToTxt()
         {
-            Tree.PrintPretty("", true, pathToFile);
+            //settings for file dialog
+            string path = Environment.ExpandEnvironmentVariables("%USERPROFILE%");
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            dialog.InitialDirectory = path;
+
+            //if file is selected do stuff, else do nothing
+            if (dialog.ShowDialog() == true)
+            {
+                Tree.PrintPretty("", true, dialog.FileName);
+            }
         }
 
-        private void ExportToJson(string pathToFile)
+        private void ExportToJson()
         {
-            string json = JsonConvert.SerializeObject(Tree);
+            //settings for file dialog
+            string path = Environment.ExpandEnvironmentVariables("%USERPROFILE%");
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+            dialog.InitialDirectory = path;
 
-            StreamWriter writer = new StreamWriter(pathToFile);
-            writer.WriteLine(json);
-            writer.Close();
+            //if file is selected do stuff, else do nothing
+            if (dialog.ShowDialog() == true)
+            {
+                string json = JsonConvert.SerializeObject(Tree);
+
+                StreamWriter writer = new StreamWriter(dialog.FileName);
+                writer.WriteLine(json);
+                writer.Close();
+            }
         }
 
-        private void ImportFromJson(string pathToFile)
+        private void ImportFromJson()
         {
-            StreamReader reader = new StreamReader(pathToFile);
-            string json = reader.ReadToEnd();
-            reader.Close();
+            //settings for file dialog
+            string path = Environment.ExpandEnvironmentVariables("%USERPROFILE%");
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+            dialog.InitialDirectory = path;
 
-            if (Tree != null) Tree = null;
+            //TODO what if can't import? -> wrong json format
 
-            Tree = JsonConvert.DeserializeObject<BinaryTree>(json);
+            //if file is selected do stuff, else do nothing
+            if (dialog.ShowDialog() == true)
+            {
+                StreamReader reader = new StreamReader(dialog.FileName);
+                string json = reader.ReadToEnd();
+                reader.Close();
+            
+                if (Tree != null) Tree = null;
+
+                Tree = JsonConvert.DeserializeObject<BinaryTree>(json);
+
+                AddVerticesToList();
+            }
         }
 
         private void AddVerticesToList()
         {
-            //BTVertex v2 = new BTVertex(Tree.Value, (2, 1));
-            //BTVertices.Add(v10);
+            //clear current tree graph
+            BTVertices.Clear();
 
             var nodesWithDepth = Tree.InOrderWithDepth();
             int x = 0;
 
+            //load vertices from tree and print graph
             foreach (var node in nodesWithDepth)
             {
                 int value = node.Key;

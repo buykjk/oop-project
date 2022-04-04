@@ -7,6 +7,7 @@
              xmlns:local="clr-namespace:oop_project.Views"
              xmlns:converters="clr-namespace:oop_project.Converters"
              xmlns:models="clr-namespace:oop_project.Models"
+             xmlns:ribbon="clr-namespace:System.Windows.Controls.Ribbon" xmlns:ribbon1="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              Background="DarkGray">
@@ -105,45 +106,60 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-
-    <Grid Margin="5">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5">
-            <StackPanel Orientation="Vertical">
-                <TextBlock Text="Node value:" HorizontalAlignment="Center"/>
-                <TextBox x:Name="NodeValue" Text="{Binding NodeValue}" PreviewTextInput="NubmersOnly" MaxLength="4" Cursor="IBeam" />
+        
+        <Menu Background="White">
+            <MenuItem Header="_Import/Export">
+                <MenuItem Header="_Import from JSON..." Command="{Binding ImportFromJsonCommand}"/>
+                <MenuItem Header="_Export">
+                    <MenuItem Header="To JSON..." Command="{Binding ExportToJsonCommand}"/>
+                    <MenuItem Header="To TXT..." Command="{Binding ExportToTxtCommand}"/>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <Grid Margin="5" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5" Grid.Row="0">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Node value:" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="NodeValue" Text="{Binding NodeValue}" PreviewTextInput="NumbersOnly" MaxLength="4" Cursor="IBeam" />
+                </StackPanel>
+                <Button Name="Add" Command="{Binding AddNodeCommand}" CommandParameter="{Binding ElementName=NodeValue, Path=Text}" Content="Add" Margin="3,0,3,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
+                <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
+                <Button Name="Delete" Command="{Binding DeleteNodeCommand}" Content="Delete" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
+                <Button Name="Reset" Command="{Binding ResetTreeCommand}" Content="Reset" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
             </StackPanel>
-            <Button Name="Add" Command="{Binding AddNodeCommand}" CommandParameter="{Binding ElementName=NodeValue, Path=Text}" Content="Add" Margin="3,0,3,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
-            <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
-            <Button Name="Delete" Command="{Binding DeleteNodeCommand}" Content="Delete" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
-            <Button Name="Reset" Command="{Binding ResetTreeCommand}" Content="Reset" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
-        </StackPanel>
 
-        <Border Grid.Row="1" Background="White" BorderThickness="3" BorderBrush="Black" CornerRadius="5">
-        <Grid Margin="1">
-            <ItemsControl ItemsSource="{Binding Path=BTVertices, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="1">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas ClipToBounds="True"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+            <Border Grid.Row="1" Background="White" BorderThickness="3" BorderBrush="Black" CornerRadius="5">
+                <Grid Margin="1">
+                    <ItemsControl ItemsSource="{Binding Path=BTVertices, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="1">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas ClipToBounds="True"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Path=BTEdges, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="0">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas ClipToBounds="True"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </Grid>
-        </Border>
+                    <ItemsControl ItemsSource="{Binding Path=BTEdges, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas ClipToBounds="True"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </Grid>
+            </Border>
 
-        <!--<local:ScrollDragZoomControl  x:Name="sdzControl" Grid.Column="1">
+            <!--<local:ScrollDragZoomControl  x:Name="sdzControl" Grid.Column="1">
         </local:ScrollDragZoomControl>-->
+        </Grid>
     </Grid>
-
 </UserControl>
