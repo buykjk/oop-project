@@ -9,6 +9,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace oop_project.ViewModels
 {
@@ -18,21 +20,21 @@ namespace oop_project.ViewModels
 
         public ObservableCollection<BTVertex> BTVertices { get; } = new ObservableCollection<BTVertex>();
         public ObservableCollection<BTEdge> BTEdges { get; } = new ObservableCollection<BTEdge>();
-        private string nodeName;
+        private string _nodeName;
         public string NodeName
         {
-            get { return this.nodeName; }
+            get => _nodeName;
             set
             {
-                if (!string.Equals(this.nodeName, value))
+                if (!string.Equals(_nodeName, value))
                 {
-                    this.nodeName = value;
+                    _nodeName = value;
                     //???
                     RaisePropertyChangedEvent("NodeName");
                 }
             }
         }
-        public BinaryTree Tree { get; set; } = null;
+        private BinaryTree Tree { get; set; } = null;
 
         //public string SomeText
         //{
@@ -59,23 +61,27 @@ namespace oop_project.ViewModels
             get { return new DelegateCommand(ResetTree); }
         }
 
-        private void AddTestNodes()
-        {
-            BTVertex v10 = new BTVertex(0, (1, 0));
-            BTVertex v01 = new BTVertex(-28, (0, 1));
-            BTVertex v21 = new BTVertex(135, (2, 1));
+        //private void AddTestNodes()
+        //{
+        //    BTVertex v10 = new BTVertex(0, (1, 0));
+        //    BTVertex v01 = new BTVertex(-28, (0, 1));
+        //    BTVertex v21 = new BTVertex(135, (2, 1));
 
-            BTVertices.Add(v10);
-            BTVertices.Add(v01);
-            BTVertices.Add(v21);
+        //    BTVertices.Add(v10);
+        //    BTVertices.Add(v01);
+        //    BTVertices.Add(v21);
 
-            BTEdges.Add(new BTEdge((v10.Position.x, v10.Position.y), (v01.Position.x, v01.Position.y)));
-            BTEdges.Add(new BTEdge((v10.Position.x, v10.Position.y), (v21.Position.x, v21.Position.y)));
-        }
+        //    BTEdges.Add(new BTEdge((v10.Position.x, v10.Position.y), (v01.Position.x, v01.Position.y)));
+        //    BTEdges.Add(new BTEdge((v10.Position.x, v10.Position.y), (v21.Position.x, v21.Position.y)));
+        //}
 
         private void AddNode(string value)
         {
-            // TODO add node to tree
+            //TODO disable button if string is empty?
+            if (value.Length == 0) return;
+            
+            //parse value from TextBox to Int
+            //create new tree or add it to existing tree
             if (Tree == null)
             {
                 Tree = new BinaryTree(Int32.Parse(value));
@@ -85,9 +91,16 @@ namespace oop_project.ViewModels
                 Tree.Add(Int32.Parse(value));
             }
 
-            BTVertex v10 = new BTVertex(Tree.Value, (0, 0));
-            BTVertices.Add(v10);
+            // TODO add multiple nodes to tree and draw them
 
+            //BTVertex v0 = new BTVertex(Tree.Value, (1, 0));
+            //BTVertex v1 = new BTVertex(Tree.Value, (0, 1));
+            //BTVertex v2 = new BTVertex(Tree.Value, (2, 1));
+            //BTVertices.Add(v0);
+            //BTVertices.Add(v1);
+            //BTVertices.Add(v2);
+            BTVertices.Clear();
+            AddVerticesToList();
             // testing placeholder
             //AddTestNodes();
         }
@@ -103,8 +116,53 @@ namespace oop_project.ViewModels
 
             // testing placeholder
             Tree = null;
+            NodeName = "";
             BTVertices.Clear();
             BTEdges.Clear();
+        }
+
+        private void SaveToFile(string pathToFile)
+        {
+            Tree.PrintPretty("", true, pathToFile);
+        }
+
+        private void ExportToJson(string pathToFile)
+        {
+            string json = JsonConvert.SerializeObject(Tree);
+
+            StreamWriter writer = new StreamWriter(pathToFile);
+            writer.WriteLine(json);
+            writer.Close();
+        }
+
+        private void ImportFromJson(string pathToFile)
+        {
+            StreamReader reader = new StreamReader(pathToFile);
+            string json = reader.ReadToEnd();
+            reader.Close();
+
+            if (Tree != null) Tree = null;
+
+            Tree = JsonConvert.DeserializeObject<BinaryTree>(json);
+        }
+
+        private void AddVerticesToList()
+        {
+            //BTVertex v2 = new BTVertex(Tree.Value, (2, 1));
+            //BTVertices.Add(v10);
+
+            var nodesWithDepth = Tree.InOrderWithDepth();
+            int x = 0;
+
+            foreach (var node in nodesWithDepth)
+            {
+                int value = node.Key;
+                int depth = node.Value;
+
+                BTVertices.Add(new BTVertex(value, (x, depth)));
+               
+                x++;
+            }
         }
     }
 }

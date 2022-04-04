@@ -114,12 +114,12 @@
         <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5">
             <StackPanel Orientation="Vertical">
                 <TextBlock Text="Node value:" HorizontalAlignment="Center"/>
-                <TextBox Text="{Binding NodeValue}" PreviewTextInput="NubmersOnly" Name="NodeValue" MaxLength="4"/>
+                <TextBox x:Name="NodeValue" Text="{Binding NodeValue}" PreviewTextInput="NubmersOnly" MaxLength="4" Cursor="IBeam" />
             </StackPanel>
-            <Button Command="{Binding AddNodeCommand}" CommandParameter="{Binding ElementName=NodeValue, Path=Text}" Content="Add" Margin="3,0,3,0" Style="{DynamicResource roundedButton}"/>
+            <Button Name="Add" Command="{Binding AddNodeCommand}" CommandParameter="{Binding ElementName=NodeValue, Path=Text}" Content="Add" Margin="3,0,3,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
             <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
-            <Button Command="{Binding DeleteNodeCommand}" Content="Delete" Margin="3,0,0,0" Style="{DynamicResource roundedButton}"/>
-            <Button Command="{Binding ResetTreeCommand}" Content="Reset" Margin="3,0,0,0" Style="{DynamicResource roundedButton}"/>
+            <Button Name="Delete" Command="{Binding DeleteNodeCommand}" Content="Delete" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
+            <Button Name="Reset" Command="{Binding ResetTreeCommand}" Content="Reset" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
         </StackPanel>
 
         <Border Grid.Row="1" Background="White" BorderThickness="3" BorderBrush="Black" CornerRadius="5">

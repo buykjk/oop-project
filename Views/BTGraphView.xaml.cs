@@ -30,5 +30,6 @@ namespace oop_project.Views
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
         }
+
     }
 }

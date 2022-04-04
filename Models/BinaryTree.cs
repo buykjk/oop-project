@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.IO;
+
 
 namespace oop_project.Models
 {
     public class BinaryTree
     {
-        private BinaryTree Left { get; set; }
-        private BinaryTree Right { get; set; }
+        public BinaryTree Left { get; set; }
+        public BinaryTree Right { get; set; }
         public int Value { get; private set; }
 
         public BinaryTree(int value)
@@ -81,10 +83,79 @@ namespace oop_project.Models
             PreOrder(subtree.Right, values);
         }
 
+        public void PrintPretty(string indent, bool last, string pathToFile)
+        {
+            //https://stackoverflow.com/questions/36311991/c-sharp-display-a-binary-search-tree-in-console
+            //modified to write to the file
+
+            StreamWriter writer = new StreamWriter(pathToFile, append: true);
+
+            writer.Write(indent);
+            if (last)
+            {
+                writer.Write("└─");
+                indent += "  ";
+            }
+            else
+            {
+                writer.Write("├─");
+                indent += "| ";
+            }
+            writer.WriteLine(Value);
+            writer.Close();
+
+            var children = new List<BinaryTree>();
+            if (this.Left != null)
+                children.Add(this.Left);
+            if (this.Right != null)
+                children.Add(this.Right);
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                children[i].PrintPretty(indent, i == children.Count - 1, pathToFile);
+            }
+
+        }
+
         public override string ToString()
         {
 
             return String.Join(", ", PreOrder());
+        }
+
+        public Dictionary<int, int> InOrderWithDepth()
+        {
+            int depth = 0;
+            Dictionary<int, int> values = new Dictionary<int, int>();
+
+            InOrderWithDepth(Left, values, ref depth);
+            depth--;
+
+            values.Add(Value, depth);
+
+            InOrderWithDepth(Right, values, ref depth);
+            //unnecessary?
+            depth--;
+
+            return values;
+        }
+
+        public void InOrderWithDepth(BinaryTree subtree, Dictionary<int, int> values, ref int depth)
+        {
+            depth++;
+            if (subtree == null)
+            {
+                return;
+            }
+
+
+            InOrderWithDepth(subtree.Left, values, ref depth);
+            depth--;
+
+            values.Add(subtree.Value, depth);
+            InOrderWithDepth(subtree.Right, values, ref depth);
+
+            depth--;
         }
     }
 }
