@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using System.Linq;
@@ -44,7 +38,14 @@ namespace oop_project.Views
             DataContext = new BTGraphViewModel();
             viewModel = DataContext as BTGraphViewModel;
 
+            viewModel.BTVertices.CollectionChanged += BTVertices_CollectionChanged;
+
             Loaded += onLoaded;
+        }
+
+        private void BTVertices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            setDeleteAllButtonState();
         }
 
         private void onLoaded(object sender, RoutedEventArgs e)
@@ -63,6 +64,11 @@ namespace oop_project.Views
         private void setDeleteButtonState()
         {
             Delete.IsEnabled = viewModel.BTVertices.Any(v => v.Selected);
+        }
+
+        private void setDeleteAllButtonState()
+        {
+            DeleteAll.IsEnabled = (viewModel.BTVertices.Count != 0);
         }
 
         private void NumbersOnly(object sender, TextCompositionEventArgs e)
@@ -152,16 +158,58 @@ namespace oop_project.Views
         }
 
         /// <summary>
+        /// Disable Add button if TextBox is empty
+        /// </summary>
+        private void NodeValue_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Add.IsEnabled = !string.IsNullOrWhiteSpace(NodeValue.Text);
+        }
+
+        /// <summary>
         /// Delete nodes
         /// </summary>
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.DeleteNodesCommand.Execute(null);
+            MessageBoxResult result = MessageBoxEx.Show(
+                owner: Application.Current.MainWindow,
+                text: "Selected nodes will be deleted.\n\tProceed?",
+                caption: "Delete Selected",
+                buttons: MessageBoxButton.YesNo,
+                icon: MessageBoxImage.Question);
 
-            setDeleteButtonState();
-            NodeValue.Focus();
+            if (result == MessageBoxResult.Yes)
+            {
+                // Delete selected
+                viewModel.DeleteNodesCommand.Execute(null);
+
+                setDeleteButtonState();
+                NodeValue.Focus();
+            }
         }
 
+        /// <summary>
+        /// Reset UI
+        /// </summary>
+        private void DeleteAll_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBoxEx.Show(
+                owner: Application.Current.MainWindow,
+                text: "The current tree will be deleted.\nDo you wish to continue?",
+                caption: "Delete All",
+                buttons: MessageBoxButton.OKCancel,
+                icon: MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.OK)
+            {
+                // Reset data
+                viewModel.ResetTreeCommand.Execute(null);
+
+                // Reset UI
+                resetUI();
+
+                setDeleteButtonState();
+            }
+        }
         private void resetUI()
         {
             // NodeValue input
@@ -188,33 +236,17 @@ namespace oop_project.Views
             NodeValue.Focus();
         }
 
-        /// <summary>
-        /// Reset UI
-        /// </summary>
-        private void DeleteAll_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBoxResult result = MessageBoxEx.Show(
-                owner: Application.Current.MainWindow,
-                text: "The current tree will be deleted.\nDo you wish to continue?",
-                caption: "Delete All",
-                buttons: MessageBoxButton.OKCancel,
-                icon: MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.OK)
-            {
-                // Reset data
-                viewModel.ResetTreeCommand.Execute(null);
-
-                // Reset UI
-                resetUI();
-
-                setDeleteButtonState();
-            }
-        }
-
         private void ResetView_Click(object sender, RoutedEventArgs e)
         {
             resetUI();
+        }
+
+        private void NodeValue_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            {
+                if (e.Key == Key.Space)
+                    e.Handled = true;
+            }
         }
 
         /// <summary>

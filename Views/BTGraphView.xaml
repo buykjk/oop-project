@@ -2,8 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:oop_project.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:converters="clr-namespace:oop_project.Converters"
              xmlns:models="clr-namespace:oop_project.Models"
@@ -12,6 +11,13 @@
              Background="DarkGray">
 
     <UserControl.Resources>
+        <!--Hotkey Commands-->
+        <RoutedUICommand x:Key="UICommand-Add"/>
+        <RoutedUICommand x:Key="UICommand-Delete"/>
+        <RoutedUICommand x:Key="UICommand-DeleteAll"/>
+        <RoutedUICommand x:Key="UICommand-ResetView"/>
+
+
         <sys:Double x:Key="FontSize">14</sys:Double>
 
         <converters:PointToMarginConverter x:Key="PointToMarginConverter"/>
@@ -108,6 +114,21 @@
             </Setter>
         </Style>
     </UserControl.Resources>
+
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{StaticResource UICommand-Add}" Executed="Add_Click"/>
+        <CommandBinding Command="{StaticResource UICommand-Delete}" Executed="Delete_Click"/>
+        <CommandBinding Command="{StaticResource UICommand-DeleteAll}" Executed="DeleteAll_Click"/>
+        <CommandBinding Command="{StaticResource UICommand-ResetView}" Executed="ResetView_Click"/>
+    </UserControl.CommandBindings>
+    
+    <UserControl.InputBindings>
+        <KeyBinding Command="{StaticResource UICommand-Add}" Key="Return"/>
+        <KeyBinding Command="{StaticResource UICommand-Delete}" Key="D"/>
+        <KeyBinding Command="{StaticResource UICommand-DeleteAll}" Key="D" Modifiers="Ctrl"/>
+        <KeyBinding Command="{StaticResource UICommand-ResetView}" Key="R" Modifiers="Ctrl"/>
+    </UserControl.InputBindings>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
@@ -132,19 +153,19 @@
 
             <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5" Grid.Row="0">
                 <Border VerticalAlignment="Stretch" Margin="3,0,0,0">
-                    <TextBox x:Name="NodeValue" PreviewTextInput="NumbersOnly" MaxLength="4" Cursor="IBeam" FontSize="20" Width="60" TextAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox x:Name="NodeValue" PreviewKeyDown="NodeValue_PreviewKeyDown" PreviewTextInput="NumbersOnly" TextChanged="NodeValue_TextChanged" MaxLength="4" Cursor="IBeam" FontSize="20" Width="60" TextAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
 
-                <Button Name="Add" Click="Add_Click" Content="Add" Margin="3,0,5,0" Style="{DynamicResource roundedButton}"/>
-                
-                <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
-                
-                <Button Name="Delete" Click="Delete_Click" Content="Delete" IsEnabled="False" Margin="5,0,0,0" Style="{DynamicResource roundedButton}"/>
-                <Button Name="DeleteAll" Click="DeleteAll_Click" Content="Delete all" Margin="3,0,5,0" Style="{DynamicResource roundedButton}"/>
+                <Button x:Name="Add" IsEnabled="False" Command="{StaticResource UICommand-Add}" Content="Add" Margin="3,0,5,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
                 
                 <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
 
-                <Button Name="ResetView" Click="ResetView_Click" Content="Reset view" Margin="5,0,0,0" Style="{DynamicResource roundedButton}"/>
+                <Button x:Name="Delete" Command="{StaticResource UICommand-Delete}" Content="Delete" IsEnabled="False" Margin="5,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
+                <Button x:Name="DeleteAll" Command="{StaticResource UICommand-DeleteAll}" Content="Delete all" IsEnabled="False" Margin="3,0,5,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
+                
+                <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
+
+                <Button x:Name="ResetView" Command="{StaticResource UICommand-ResetView}" Content="Reset view" Margin="5,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
             </StackPanel>
 
             <Border x:Name="graphBorder" Grid.Row="1"

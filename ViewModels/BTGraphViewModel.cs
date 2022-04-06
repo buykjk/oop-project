@@ -3,12 +3,7 @@ using oop_project.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using Newtonsoft.Json;
 using System.IO;
 using Microsoft.Win32;
@@ -39,7 +34,7 @@ namespace oop_project.ViewModels
         {
             //TODO disable button if string is empty?
             if (value.Length == 0 || value == "-") return;
-           
+            
             Tree.Add(Int32.Parse(value));
             
             DrawTree();
