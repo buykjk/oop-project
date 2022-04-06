@@ -89,7 +89,7 @@ namespace oop_project.ViewModels
         private void DeleteNodes()
         {
             List<int> selection = new List<int>();
-            // TODO delete node from tree
+
             foreach (var vertex in BTVertices)
             {
                 if (vertex.Selected)

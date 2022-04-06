@@ -89,12 +89,6 @@ namespace oop_project.Models
             Root.PrintPretty("", true, pathToFile);
         }
 
-        public override string ToString()
-        {
-            //testing thing
-            return String.Join(", ", PreOrder());
-        }
-
         public Dictionary<int, int> InOrderWithDepth()
         {
             int depth = 0;

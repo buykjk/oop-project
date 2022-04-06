@@ -17,11 +17,9 @@ namespace oop_project.Models
         public int Value { get; set; }
         public (int x, int y) Position { get; set; }
 
-        
-        public BTVertex(int value, (int x, int y) position)
+        public BTVertex()
         {
-            Value = value;
-            Position = position;
+            // Empty constructor for JSON deserialization
         }
 
         public BTVertex(int value)
@@ -29,11 +27,6 @@ namespace oop_project.Models
             Value = value;
             Left = null;
             Right = null;
-        }
-
-        public BTVertex()
-        {
-            // Empty constructor for JSON deserialization
         }
 
         public void PrintPretty(string indent, bool last, string pathToFile)
