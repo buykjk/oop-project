@@ -1,1 +1,4 @@
 ﻿Add summary descriptions to significant methods and classes
+Add code comments where needed
+Rename private fields to _name naming convention
+Add regions
