@@ -53,8 +53,16 @@ namespace oop_project.Views
 
         private void NumbersOnly(object sender, TextCompositionEventArgs e)
         {
-            Regex regex = new Regex("[^0-9]-+");
-            e.Handled = regex.IsMatch(e.Text);
+            if (NodeValue.Text == "")
+            {
+                Regex regex = new Regex(@"^-?\d*$");
+                e.Handled = !regex.IsMatch(e.Text);
+            }
+            else
+            {
+                Regex regex = new Regex(@"^\d+$");
+                e.Handled = !regex.IsMatch(e.Text);
+            }
         }
 
         private void handleSelection(MouseButtonEventArgs e)

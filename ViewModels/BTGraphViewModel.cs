@@ -17,7 +17,7 @@ namespace oop_project.ViewModels
 {
     public class BTGraphViewModel : BaseViewModel
     {
-        private BinaryTree Tree { get; set; } = null;
+        private BinaryTreeNew Tree { get; set; } = new BinaryTreeNew();
 
         public ObservableCollection<BTVertex> BTVertices { get; } = new ObservableCollection<BTVertex>();
         public ObservableCollection<BTEdge> BTEdges { get; } = new ObservableCollection<BTEdge>();
@@ -34,52 +34,22 @@ namespace oop_project.ViewModels
 
         public ICommand ExportToJsonCommand => new DelegateCommand(ExportToJson);
 
-        private void AddTestNodesAndEdges()
-        {
-            for (int y = 0; y < 2; y++)
-            {
-                for (int x = 0; x < 2; x++)
-                {
-                    BTVertex btv = new BTVertex(x + y, (x, y));
-
-                    BTVertices.Add(btv);
-                }
-            }
-
-            for (int i = 0; i < 3; i++)
-            {
-                BTEdge edge = new BTEdge(BTVertices[0].Position, BTVertices[i+1].Position);
-
-                BTEdges.Add(edge);
-            }
-        }
 
         private void AddNode(string value)
         {
-            //AddTestNodesAndEdges();
-            //return;
-
             //TODO disable button if string is empty?
-            if (value.Length == 0) return;
+            if (value.Length == 0 || value == "-") return;
+           
+            Tree.Add(Int32.Parse(value));
             
-            //parse value from TextBox to Int
-            //create new tree or add it to existing tree
-            if (Tree == null)
-            {
-                Tree = new BinaryTree(Int32.Parse(value));
-            }
-            else
-            {
-                Tree.Add(Int32.Parse(value));
-            }
-
-            AddVerticesToList();
+            DrawTree();
         }
 
-        private void AddVerticesToList()
+        private void DrawTree()
         {
             //clear current tree graph
             BTVertices.Clear();
+            BTEdges.Clear();
 
             var nodesWithDepth = Tree.InOrderWithDepth();
             int x = 0;
@@ -89,22 +59,59 @@ namespace oop_project.ViewModels
             {
                 int value = node.Key;
                 int depth = node.Value;
+                
+                var vertex = Tree.Find(Tree.Root, value);
 
-                BTVertices.Add(new BTVertex(value, (x, depth)));
+                //set position to vertices in tree
+                vertex.Position = (x, depth);
+
+                BTVertices.Add(vertex);
 
                 x++;
+            }
+
+            foreach (var vertex in BTVertices)
+            {
+                if (vertex.Left == null && vertex.Right == null) continue;
+                
+                if (vertex.Left != null)
+                {
+                    BTEdges.Add(new BTEdge(vertex.Position, vertex.Left.Position));
+                }
+                if (vertex.Right != null)
+                {
+                    BTEdges.Add(new BTEdge(vertex.Position, vertex.Right.Position));
+                }
+
             }
         }
 
         private void DeleteNodes()
         {
+            List<int> selection = new List<int>();
             // TODO delete node from tree
+            foreach (var vertex in BTVertices)
+            {
+                if (vertex.Selected)
+                {
+                    selection.Add(vertex.Value);
+                }
+            }
+            if (selection.Count == BTVertices.Count)
+            { 
+                ResetTree();
+            }
+            else
+            {
+                Tree = Tree.DeleteAndCreate(selection);
+                DrawTree();
+            }
         }
 
         private void ResetTree()
         {
             //delete everything
-            Tree = null;
+            Tree = new BinaryTreeNew();
             BTVertices.Clear();
             BTEdges.Clear();
         }
@@ -120,7 +127,7 @@ namespace oop_project.ViewModels
             //if file is selected do stuff, else do nothing
             if (dialog.ShowDialog() == true)
             {
-                Tree.PrintPretty("", true, dialog.FileName);
+                Tree.Print(dialog.FileName);
             }
         }
 
@@ -162,9 +169,9 @@ namespace oop_project.ViewModels
             
                 if (Tree != null) Tree = null;
 
-                Tree = JsonConvert.DeserializeObject<BinaryTree>(json);
+                Tree = JsonConvert.DeserializeObject<BinaryTreeNew>(json);
 
-                AddVerticesToList();
+                DrawTree();
             }
         }
     }

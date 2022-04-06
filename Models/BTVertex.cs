@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Windows;
+using System.IO;
 
 namespace oop_project.Models
 {
@@ -11,15 +12,63 @@ namespace oop_project.Models
         private bool _selected = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public BTVertex Left { get; set; }
+        public BTVertex Right { get; set; }
+        public int Value { get; set; }
+        public (int x, int y) Position { get; set; }
 
+        
         public BTVertex(int value, (int x, int y) position)
         {
             Value = value;
             Position = position;
         }
 
-        public int Value { get; }
-        public (int x, int y) Position { get; }
+        public BTVertex(int value)
+        {
+            Value = value;
+            Left = null;
+            Right = null;
+        }
+
+        public BTVertex()
+        {
+            // Empty constructor for JSON deserialization
+        }
+
+        public void PrintPretty(string indent, bool last, string pathToFile)
+        {
+            //https://stackoverflow.com/questions/36311991/c-sharp-display-a-binary-search-tree-in-console
+            //modified to write to the file
+
+            StreamWriter writer = new StreamWriter(pathToFile, append: true);
+
+            writer.Write(indent);
+            if (last)
+            {
+                writer.Write("└─");
+                indent += "  ";
+            }
+            else
+            {
+                writer.Write("├─");
+                indent += "| ";
+            }
+            writer.WriteLine(this.Value);
+            writer.Close();
+
+            var children = new List<BTVertex>();
+            if (this.Left != null)
+                children.Add(this.Left);
+            if (this.Right != null)
+                children.Add(this.Right);
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                children[i].PrintPretty(indent, i == children.Count - 1, pathToFile);
+            }
+
+        }
 
         // For selection-handling in View
         // TODO does it break the MVVM pattern?
@@ -31,6 +80,7 @@ namespace oop_project.Models
                 _selected = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected)));
             }
+
         }
     }
 }
