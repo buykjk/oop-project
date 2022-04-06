@@ -2,3 +2,7 @@
 Add code comments where needed
 Rename private fields to _name naming convention
 Add regions
+Add keybindings
+
+--- out of scope ---
+Add balancing

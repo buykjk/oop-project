@@ -13,6 +13,8 @@ using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using System.Linq;
 using oop_project.Models;
+using oop_project.ViewModels;
+using oop_project.Helpers;
 
 namespace oop_project.Views
 {
@@ -21,9 +23,11 @@ namespace oop_project.Views
     /// </summary>
     public partial class BTGraphView : UserControl
     {
+        private BTGraphViewModel viewModel;
+
         // Zoom
-        private double scaleMax = 2;
-        private double scaleMin = 0.5;
+        private double scaleMax = 3;
+        private double scaleMin = 0.6;
         private double zoomSpeed = 0.1;
 
         // Pan
@@ -37,18 +41,28 @@ namespace oop_project.Views
         {
             InitializeComponent();
 
+            DataContext = new BTGraphViewModel();
+            viewModel = DataContext as BTGraphViewModel;
+
             Loaded += onLoaded;
         }
 
         private void onLoaded(object sender, RoutedEventArgs e)
         {
             // Get graph transforms
-
             scaleVertices = (ScaleTransform)((TransformGroup)graphVertices.RenderTransform).Children.First(tr => tr is ScaleTransform);
             translationVertices = (TranslateTransform)((TransformGroup)graphVertices.RenderTransform).Children.First(tr => tr is TranslateTransform);
 
             scaleEdges = (ScaleTransform)((TransformGroup)graphEdges.RenderTransform).Children.First(tr => tr is ScaleTransform);
             translationEdges = (TranslateTransform)((TransformGroup)graphEdges.RenderTransform).Children.First(tr => tr is TranslateTransform);
+
+            // Input focus
+            NodeValue.Focus();
+        }
+
+        private void setDeleteButtonState()
+        {
+            Delete.IsEnabled = viewModel.BTVertices.Any(v => v.Selected);
         }
 
         private void NumbersOnly(object sender, TextCompositionEventArgs e)
@@ -101,11 +115,13 @@ namespace oop_project.Views
             {
                 clearSelected();
             }
+
+            setDeleteButtonState();
         }
 
         private void clearSelected()
         {
-            foreach (BTVertex vertex in graphVertices.Items)
+            foreach (BTVertex vertex in viewModel.BTVertices)
             {
                 vertex.Selected = false;
             }
@@ -122,6 +138,83 @@ namespace oop_project.Views
         private void graphBorder_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             graphBorder.ReleaseMouseCapture();
+        }
+
+        /// <summary>
+        /// Add node
+        /// </summary>
+        private void Add_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.AddNodeCommand.Execute(NodeValue.Text);
+
+            NodeValue.Clear();
+            NodeValue.Focus();
+        }
+
+        /// <summary>
+        /// Delete nodes
+        /// </summary>
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.DeleteNodesCommand.Execute(null);
+
+            setDeleteButtonState();
+            NodeValue.Focus();
+        }
+
+        private void resetUI()
+        {
+            // NodeValue input
+            NodeValue.Clear();
+
+            // Vertices transforms
+            translationVertices.X = 0;
+            translationVertices.Y = 0;
+
+            scaleVertices.CenterX = 0;
+            scaleVertices.CenterY = 0;
+            scaleVertices.ScaleX = 1;
+            scaleVertices.ScaleY = 1;
+
+            // Edges transforms
+            translationEdges.X = 0;
+            translationEdges.Y = 0;
+
+            scaleEdges.CenterX = 0;
+            scaleEdges.CenterY = 0;
+            scaleEdges.ScaleX = 1;
+            scaleEdges.ScaleY = 1;
+
+            NodeValue.Focus();
+        }
+
+        /// <summary>
+        /// Reset UI
+        /// </summary>
+        private void DeleteAll_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBoxEx.Show(
+                owner: Application.Current.MainWindow,
+                text: "The current tree will be deleted.\nDo you wish to continue?",
+                caption: "Delete All",
+                buttons: MessageBoxButton.OKCancel,
+                icon: MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.OK)
+            {
+                // Reset data
+                viewModel.ResetTreeCommand.Execute(null);
+
+                // Reset UI
+                resetUI();
+
+                setDeleteButtonState();
+            }
+        }
+
+        private void ResetView_Click(object sender, RoutedEventArgs e)
+        {
+            resetUI();
         }
 
         /// <summary>

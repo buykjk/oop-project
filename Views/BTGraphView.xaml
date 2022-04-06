@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:oop_project.Views"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:converters="clr-namespace:oop_project.Converters"
              xmlns:models="clr-namespace:oop_project.Models"
              mc:Ignorable="d" 
@@ -11,6 +12,8 @@
              Background="DarkGray">
 
     <UserControl.Resources>
+        <sys:Double x:Key="FontSize">14</sys:Double>
+
         <converters:PointToMarginConverter x:Key="PointToMarginConverter"/>
         <converters:BTPositionToPointConverter x:Key="BTPositionToPointConverter"/>
 
@@ -46,7 +49,7 @@
             </Path>
         </DataTemplate>
         
-        <!--The following code is an edited Button template (added rounded corners)-->
+        <!--The following code is an edited Button template-->
         <Style x:Key="FocusVisual">
             <Setter Property="Control.Template">
                 <Setter.Value>
@@ -74,11 +77,12 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="1"/>
+            <Setter Property="FontSize" Value="{StaticResource FontSize}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true"
-                                CornerRadius="5" Width="50" Height="35">
+                                CornerRadius="5" Width="75" Height="35" Cursor="Hand">
                             <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -127,15 +131,20 @@
             </Grid.RowDefinitions>
 
             <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5" Grid.Row="0">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Node value:" HorizontalAlignment="Center"/>
-                    <TextBox x:Name="NodeValue" Text="{Binding NodeValue}" PreviewTextInput="NumbersOnly" MaxLength="4" Cursor="IBeam" />
-                </StackPanel>
+                <Border VerticalAlignment="Stretch" Margin="3,0,0,0">
+                    <TextBox x:Name="NodeValue" PreviewTextInput="NumbersOnly" MaxLength="4" Cursor="IBeam" FontSize="20" Width="60" TextAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
 
-                <Button Name="Add" Command="{Binding AddNodeCommand}" CommandParameter="{Binding ElementName=NodeValue, Path=Text}" Content="Add" Margin="3,0,3,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
+                <Button Name="Add" Click="Add_Click" Content="Add" Margin="3,0,5,0" Style="{DynamicResource roundedButton}"/>
+                
                 <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
-                <Button Name="Delete" Command="{Binding DeleteNodesCommand}" Content="Delete" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
-                <Button Name="Reset" Command="{Binding ResetTreeCommand}" Content="Reset" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
+                
+                <Button Name="Delete" Click="Delete_Click" Content="Delete" IsEnabled="False" Margin="5,0,0,0" Style="{DynamicResource roundedButton}"/>
+                <Button Name="DeleteAll" Click="DeleteAll_Click" Content="Delete all" Margin="3,0,5,0" Style="{DynamicResource roundedButton}"/>
+                
+                <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
+
+                <Button Name="ResetView" Click="ResetView_Click" Content="Reset view" Margin="5,0,0,0" Style="{DynamicResource roundedButton}"/>
             </StackPanel>
 
             <Border x:Name="graphBorder" Grid.Row="1"
