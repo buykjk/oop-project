@@ -9,14 +9,6 @@ namespace oop_project.Converters
 {
     public class PointToMarginConverter : IMultiValueConverter
     {
-        /// <summary>
-        /// TODO summary
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             Point position = (Point)values[0];

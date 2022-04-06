@@ -3,42 +3,40 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:oop_project.Views"
              xmlns:converters="clr-namespace:oop_project.Converters"
              xmlns:models="clr-namespace:oop_project.Models"
-             xmlns:ribbon="clr-namespace:System.Windows.Controls.Ribbon" xmlns:ribbon1="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              Background="DarkGray">
 
     <UserControl.Resources>
-        <sys:Double x:Key="CellDimension">50</sys:Double>
-        <Point x:Key="CellCenter" X="25" Y="25"/>
-        <sys:Double x:Key="NodeRadius">23</sys:Double>
-
         <converters:PointToMarginConverter x:Key="PointToMarginConverter"/>
         <converters:BTPositionToPointConverter x:Key="BTPositionToPointConverter"/>
 
         <DataTemplate DataType="{x:Type models:BTVertex}">
-            <Grid Name="grid" Width="{StaticResource CellDimension}" Height="{StaticResource CellDimension}">
+            <Grid Name="grid" Width="{StaticResource ResourceKey=CellDimension}" Height="{StaticResource ResourceKey=CellDimension}">
                 <Grid.Margin>
                     <MultiBinding Converter="{StaticResource PointToMarginConverter}">
-                        <Binding Path="Position" Converter="{StaticResource BTPositionToPointConverter}"></Binding>
-                        <Binding ElementName="grid" Path="ActualWidth"></Binding>
-                        <Binding ElementName="grid" Path="ActualHeight"></Binding>
+                        <Binding Path="Position" Converter="{StaticResource BTPositionToPointConverter}"/>
+                        <Binding ElementName="grid" Path="ActualWidth"/>
+                        <Binding ElementName="grid" Path="ActualHeight"/>
                     </MultiBinding>
                 </Grid.Margin>
-                <Path Stroke="Black" StrokeThickness="4" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="0">
-                    <Path.Data>
-                        <EllipseGeometry Center="{StaticResource CellCenter}"
-                                         RadiusX="{StaticResource NodeRadius}"
-                                         RadiusY="{StaticResource NodeRadius}"/>
-                    </Path.Data>
-                </Path>
+
+                <Ellipse Stroke="Black" StrokeThickness="4" Fill="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="0"/>
                 <TextBlock Text="{Binding Path=Value}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="1"/>
+                <!--Hitbox for selection-->
+                <Ellipse x:Name="hitbox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="DeepSkyBlue" Opacity="0" Panel.ZIndex="2"/>
             </Grid>
+
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Path=Selected}" Value="True">
+                    <Setter TargetName="hitbox" Property="Opacity" Value="0.2"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
         </DataTemplate>
+
         <DataTemplate DataType="{x:Type models:BTEdge}">
             <Path Stroke="Black" StrokeThickness="4">
                 <Path.Data>
@@ -111,7 +109,7 @@
             <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <Menu Background="White">
             <MenuItem Header="_Import/Export">
                 <MenuItem Header="_Import from JSON..." Command="{Binding ImportFromJsonCommand}"/>
@@ -127,39 +125,56 @@
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
             <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5" Grid.Row="0">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="Node value:" HorizontalAlignment="Center"/>
                     <TextBox x:Name="NodeValue" Text="{Binding NodeValue}" PreviewTextInput="NumbersOnly" MaxLength="4" Cursor="IBeam" />
                 </StackPanel>
+
                 <Button Name="Add" Command="{Binding AddNodeCommand}" CommandParameter="{Binding ElementName=NodeValue, Path=Text}" Content="Add" Margin="3,0,3,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
                 <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
                 <Button Name="Delete" Command="{Binding DeleteNodeCommand}" Content="Delete" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
                 <Button Name="Reset" Command="{Binding ResetTreeCommand}" Content="Reset" Margin="3,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
             </StackPanel>
 
-            <Border Grid.Row="1" Background="White" BorderThickness="3" BorderBrush="Black" CornerRadius="5">
-                <Grid Margin="1">
-                    <ItemsControl ItemsSource="{Binding Path=BTVertices, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="1">
+            <Border x:Name="graphBorder" Grid.Row="1"
+                Background="White" BorderThickness="3" BorderBrush="Black" CornerRadius="5"
+                MouseLeftButtonDown="graphBorder_MouseLeftButtonDown" MouseLeftButtonUp="graphBorder_MouseLeftButtonUp"
+                MouseMove="graphBorder_MouseMove" MouseWheel="graphBorder_MouseWheel">
+                <!--This Grid is for nice clipping-->
+                <Grid ClipToBounds="True">
+                    <ItemsControl x:Name="graphVertices" ItemsSource="{Binding Path=BTVertices, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="1">
+                        <ItemsControl.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </ItemsControl.RenderTransform>
+
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <Canvas ClipToBounds="True"/>
+                                <Canvas/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
 
-                    <ItemsControl ItemsSource="{Binding Path=BTEdges, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="0">
+                    <ItemsControl x:Name="graphEdges" ItemsSource="{Binding Path=BTEdges, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="0">
+                        <ItemsControl.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </ItemsControl.RenderTransform>
+
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <Canvas ClipToBounds="True"/>
+                                <Canvas/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
                 </Grid>
             </Border>
-
-            <!--<local:ScrollDragZoomControl  x:Name="sdzControl" Grid.Column="1">
-        </local:ScrollDragZoomControl>-->
         </Grid>
     </Grid>
 </UserControl>

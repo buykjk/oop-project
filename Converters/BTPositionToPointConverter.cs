@@ -9,14 +9,14 @@ namespace oop_project.Converters
 {
     class BTPositionToPointConverter : IValueConverter
     {
-        private const int cellWidth = 50;
+        private double cellDimension = (double)Application.Current.FindResource("CellDimension");
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             (int x, int y) position = ((int x, int y))value;
 
-            double x = (position.x + 1) * cellWidth - cellWidth / 2;
-            double y = (position.y + 1) * cellWidth - cellWidth / 2;
+            double x = (position.x + 1) * cellDimension - cellDimension / 2;
+            double y = (position.y + 1) * cellDimension - cellDimension / 2;
 
             return new Point(x, y);
         }

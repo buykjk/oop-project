@@ -17,68 +17,48 @@ namespace oop_project.ViewModels
 {
     public class BTGraphViewModel : BaseViewModel
     {
-        //private string _someText = "TextPlaceholder";
+        private BinaryTree Tree { get; set; } = null;
 
         public ObservableCollection<BTVertex> BTVertices { get; } = new ObservableCollection<BTVertex>();
         public ObservableCollection<BTEdge> BTEdges { get; } = new ObservableCollection<BTEdge>();
-        private string _nodeName;
-        public string NodeName
+
+        public ICommand AddNodeCommand => new RelayCommand<string>(param => AddNode(param));
+
+        public ICommand DeleteNodesCommand => new DelegateCommand(DeleteNodes);
+
+        public ICommand ResetTreeCommand => new DelegateCommand(ResetTree);
+
+        public ICommand ImportFromJsonCommand => new DelegateCommand(ImportFromJson);
+
+        public ICommand ExportToTxtCommand => new DelegateCommand(ExportToTxt);
+
+        public ICommand ExportToJsonCommand => new DelegateCommand(ExportToJson);
+
+        private void AddTestNodesAndEdges()
         {
-            get => _nodeName;
-            set
+            for (int y = 0; y < 2; y++)
             {
-                if (!string.Equals(_nodeName, value))
+                for (int x = 0; x < 2; x++)
                 {
-                    _nodeName = value;
-                    //???
-                    RaisePropertyChangedEvent("NodeName");
+                    BTVertex btv = new BTVertex(x + y, (x, y));
+
+                    BTVertices.Add(btv);
                 }
             }
-        }
-        private BinaryTree Tree { get; set; } = null;
 
-        //public string SomeText
-        //{
-        //    get { return _someText; }
-        //    set
-        //    {
-        //        _someText = value;
-        //        RaisePropertyChangedEvent("SomeText");
-        //    }
-        //}
+            for (int i = 0; i < 3; i++)
+            {
+                BTEdge edge = new BTEdge(BTVertices[0].Position, BTVertices[i+1].Position);
 
-        public ICommand AddNodeCommand
-        {
-            get { return new RelayCommand<string>(param => AddNode(param)); }
-        }
-
-        public ICommand DeleteNodesCommand
-        {
-            get { return new DelegateCommand(DeleteNodes); }
-        }
-
-        public ICommand ResetTreeCommand
-        {
-            get { return new DelegateCommand(ResetTree); }
-        }
-
-        public ICommand ImportFromJsonCommand
-        {
-            get { return new DelegateCommand(ImportFromJson); }
-        }
-
-        public ICommand ExportToTxtCommand
-        {
-            get { return new DelegateCommand(ExportToTxt); }
-        }
-
-        public ICommand ExportToJsonCommand
-        {
-            get { return new DelegateCommand(ExportToJson); }
+                BTEdges.Add(edge);
+            }
         }
 
         private void AddNode(string value)
         {
+            //AddTestNodesAndEdges();
+            //return;
+
             //TODO disable button if string is empty?
             if (value.Length == 0) return;
             
@@ -96,6 +76,26 @@ namespace oop_project.ViewModels
             AddVerticesToList();
         }
 
+        private void AddVerticesToList()
+        {
+            //clear current tree graph
+            BTVertices.Clear();
+
+            var nodesWithDepth = Tree.InOrderWithDepth();
+            int x = 0;
+
+            //load vertices from tree and print graph
+            foreach (var node in nodesWithDepth)
+            {
+                int value = node.Key;
+                int depth = node.Value;
+
+                BTVertices.Add(new BTVertex(value, (x, depth)));
+
+                x++;
+            }
+        }
+
         private void DeleteNodes()
         {
             // TODO delete node from tree
@@ -105,7 +105,6 @@ namespace oop_project.ViewModels
         {
             //delete everything
             Tree = null;
-            NodeName = "";
             BTVertices.Clear();
             BTEdges.Clear();
         }
@@ -166,26 +165,6 @@ namespace oop_project.ViewModels
                 Tree = JsonConvert.DeserializeObject<BinaryTree>(json);
 
                 AddVerticesToList();
-            }
-        }
-
-        private void AddVerticesToList()
-        {
-            //clear current tree graph
-            BTVertices.Clear();
-
-            var nodesWithDepth = Tree.InOrderWithDepth();
-            int x = 0;
-
-            //load vertices from tree and print graph
-            foreach (var node in nodesWithDepth)
-            {
-                int value = node.Key;
-                int depth = node.Value;
-
-                BTVertices.Add(new BTVertex(value, (x, depth)));
-               
-                x++;
             }
         }
     }
