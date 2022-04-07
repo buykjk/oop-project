@@ -357,5 +357,49 @@ namespace oop_project.Views
             _scaleEdges.ScaleX = newScale;
             _scaleEdges.ScaleY = newScale;
         }
+
+        #region Hotkey Binding Helpers
+        private void ExportToJSON_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ExportToJsonCommand.Execute(null);
+        }
+        private void ExportToTXT_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ExportToTxtCommand.Execute(null);
+        }
+        private void ImportFromJSON_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ImportFromJsonCommand.Execute(null);
+        }
+        private void Help_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxEx.Show(
+                owner: Application.Current.MainWindow,
+                caption: "Help", 
+                text: "Controls:\n" +
+                      "Zoom-In(Out):\t Mouse wheel\n" +
+                      "Tree position:\t Mouse drag\n" +
+                      "Export to TXT:\t Exports current tree into a file in human readable format.\n" +
+                      "Export to JSON:\t Exports current tree into a file in JSON format.\n" +
+                      "Import from JSON:\t Imports tree from JSON file.\n" +
+                      "\n" +
+                      "Buttons:\n" +
+                      "Add: Adds node from the textbox to the tree.\n" +
+                      "Delete: Deletes selected node(s).\n" +
+                      "Delete All: Deletes all nodes from tree.\n" +
+                      "Reset View: Resets tree position to default position.\n" +
+                      "\n" +
+                      "Shortcuts:\n" +
+                      "Add:\t\tEnter\n" +
+                      "Delete:\t\tD\n" +
+                      "Delete All:\tCtrl + D\n" +
+                      "Reset View:\tCtrl + R\n" +
+                      "Export to TXT:\tCtrl + S\n" +
+                      "Export to JSON:\tCtrl + J\n" +
+                      "Import from JSON:\tCtrl + I",
+                buttons: MessageBoxButton.OK,
+                icon: MessageBoxImage.Asterisk);
+        }
+        #endregion
     }
 }

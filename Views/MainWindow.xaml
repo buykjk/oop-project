@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:oop_project"
         xmlns:views="clr-namespace:oop_project.Views"
         mc:Ignorable="d"
-        Height="400" Width="400">
+        Height="450" Width="600" MinHeight="250" MinWidth="430">
 
     <views:BTGraphView/>
 </Window>

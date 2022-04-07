@@ -16,6 +16,10 @@
         <RoutedUICommand x:Key="UICommand-Delete"/>
         <RoutedUICommand x:Key="UICommand-DeleteAll"/>
         <RoutedUICommand x:Key="UICommand-ResetView"/>
+        <RoutedUICommand x:Key="UICommand-ExportToJSON"/>
+        <RoutedUICommand x:Key="UICommand-ExportToTXT"/>
+        <RoutedUICommand x:Key="UICommand-ImportFromJSON"/>
+        <RoutedUICommand x:Key="UICommand-Help"/>
 
 
         <sys:Double x:Key="FontSize">14</sys:Double>
@@ -123,6 +127,12 @@
         <CommandBinding Command="{StaticResource UICommand-Delete}" Executed="Delete_Click"/>
         <CommandBinding Command="{StaticResource UICommand-DeleteAll}" Executed="DeleteAll_Click"/>
         <CommandBinding Command="{StaticResource UICommand-ResetView}" Executed="ResetView_Click"/>
+        <CommandBinding Command="{StaticResource UICommand-ExportToJSON}" Executed="ExportToJSON_Click"/>
+        <CommandBinding Command="{StaticResource UICommand-ExportToTXT}" Executed="ExportToTXT_Click"/>
+        <CommandBinding Command="{StaticResource UICommand-ImportFromJSON}" Executed="ImportFromJSON_Click"/>
+        <CommandBinding Command="{StaticResource UICommand-Help}" Executed="Help_Click"/>
+
+
     </UserControl.CommandBindings>
     
     <UserControl.InputBindings>
@@ -130,6 +140,10 @@
         <KeyBinding Command="{StaticResource UICommand-Delete}" Key="D"/>
         <KeyBinding Command="{StaticResource UICommand-DeleteAll}" Key="D" Modifiers="Ctrl"/>
         <KeyBinding Command="{StaticResource UICommand-ResetView}" Key="R" Modifiers="Ctrl"/>
+        <KeyBinding Command="{StaticResource UICommand-ExportToJSON}" Key="J" Modifiers="Ctrl"/>
+        <KeyBinding Command="{StaticResource UICommand-ExportToTXT}" Key="S" Modifiers="Ctrl"/>
+        <KeyBinding Command="{StaticResource UICommand-ImportFromJSON}" Key="I" Modifiers="Ctrl"/>
+        <KeyBinding Command="{StaticResource UICommand-Help}" Key="F1"/>
     </UserControl.InputBindings>
     
     <Grid>
@@ -139,11 +153,13 @@
         </Grid.RowDefinitions>
 
         <Menu Background="White">
+            <MenuItem Header="_Help" Command="{StaticResource UICommand-Help}"/>
+
             <MenuItem Header="_Import/Export">
-                <MenuItem Header="_Import from JSON..." Command="{Binding ImportFromJsonCommand}"/>
+                <MenuItem Header="_Import from JSON..." Command="{StaticResource UICommand-ImportFromJSON}"/>
                 <MenuItem Header="_Export">
-                    <MenuItem Header="To JSON..." Command="{Binding ExportToJsonCommand}"/>
-                    <MenuItem Header="To TXT..." Command="{Binding ExportToTxtCommand}"/>
+                    <MenuItem Header="To JSON..." Command="{StaticResource UICommand-ExportToJSON}"/>
+                    <MenuItem Header="To TXT..." Command="{StaticResource UICommand-ExportToTXT}"/>
                 </MenuItem>
             </MenuItem>
         </Menu>
