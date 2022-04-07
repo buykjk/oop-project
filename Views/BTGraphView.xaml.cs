@@ -17,71 +17,94 @@ namespace oop_project.Views
     /// </summary>
     public partial class BTGraphView : UserControl
     {
-        private BTGraphViewModel viewModel;
+        private BTGraphViewModel _viewModel;
+
+        // Text filtering
+        private string _lastNodeValueText;
+        private int _lastNodeValueCaretIndex;
 
         // Zoom
-        private double scaleMax = 3;
-        private double scaleMin = 0.6;
-        private double zoomSpeed = 0.1;
+        private const double _scaleMax = 3;
+        private const double _scaleMin = 0.6;
+        private const double _zoomSpeed = 0.1;
 
         // Pan
-        private Point last = new Point(0,0);
+        private Point _lastMousePos = new Point(0,0);
 
         // Transforms
-        private ScaleTransform scaleVertices, scaleEdges;
-        private TranslateTransform translationVertices, translationEdges;
+        private ScaleTransform _scaleVertices, _scaleEdges;
+        private TranslateTransform _translationVertices, _translationEdges;
 
         public BTGraphView()
         {
             InitializeComponent();
 
             DataContext = new BTGraphViewModel();
-            viewModel = DataContext as BTGraphViewModel;
-
-            viewModel.BTVertices.CollectionChanged += BTVertices_CollectionChanged;
+            _viewModel = DataContext as BTGraphViewModel;
 
             Loaded += onLoaded;
-        }
-
-        private void BTVertices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            setDeleteAllButtonState();
+            _viewModel.BTVertices.CollectionChanged += BTVertices_CollectionChanged;
         }
 
         private void onLoaded(object sender, RoutedEventArgs e)
         {
             // Get graph transforms
-            scaleVertices = (ScaleTransform)((TransformGroup)graphVertices.RenderTransform).Children.First(tr => tr is ScaleTransform);
-            translationVertices = (TranslateTransform)((TransformGroup)graphVertices.RenderTransform).Children.First(tr => tr is TranslateTransform);
+            _scaleVertices = (ScaleTransform)((TransformGroup)graphVertices.RenderTransform).Children.First(tr => tr is ScaleTransform);
+            _translationVertices = (TranslateTransform)((TransformGroup)graphVertices.RenderTransform).Children.First(tr => tr is TranslateTransform);
 
-            scaleEdges = (ScaleTransform)((TransformGroup)graphEdges.RenderTransform).Children.First(tr => tr is ScaleTransform);
-            translationEdges = (TranslateTransform)((TransformGroup)graphEdges.RenderTransform).Children.First(tr => tr is TranslateTransform);
+            _scaleEdges = (ScaleTransform)((TransformGroup)graphEdges.RenderTransform).Children.First(tr => tr is ScaleTransform);
+            _translationEdges = (TranslateTransform)((TransformGroup)graphEdges.RenderTransform).Children.First(tr => tr is TranslateTransform);
 
             // Input focus
             NodeValue.Focus();
         }
 
-        private void setDeleteButtonState()
+        private void resetUI()
         {
-            Delete.IsEnabled = viewModel.BTVertices.Any(v => v.Selected);
+            // NodeValue input
+            NodeValue.Clear();
+
+            // Vertices transforms
+            _translationVertices.X = 0;
+            _translationVertices.Y = 0;
+
+            _scaleVertices.CenterX = 0;
+            _scaleVertices.CenterY = 0;
+            _scaleVertices.ScaleX = 1;
+            _scaleVertices.ScaleY = 1;
+
+            // Edges transforms
+            _translationEdges.X = 0;
+            _translationEdges.Y = 0;
+
+            _scaleEdges.CenterX = 0;
+            _scaleEdges.CenterY = 0;
+            _scaleEdges.ScaleX = 1;
+            _scaleEdges.ScaleY = 1;
+
+            NodeValue.Focus();
         }
 
-        private void setDeleteAllButtonState()
+        private void updateDeleteButtonState()
         {
-            DeleteAll.IsEnabled = (viewModel.BTVertices.Count != 0);
+            Delete.IsEnabled = _viewModel.BTVertices.Any(v => v.Selected);
         }
 
-        private void NumbersOnly(object sender, TextCompositionEventArgs e)
+        private void updateDeleteAllButtonState()
         {
-            if (NodeValue.Text == "")
+            DeleteAll.IsEnabled = (_viewModel.BTVertices.Count != 0);
+        }
+
+        private void updateAddButtonState()
+        {
+            Add.IsEnabled = !(string.IsNullOrWhiteSpace(NodeValue.Text) || NodeValue.Text == "-");
+        }
+
+        private void clearSelected()
+        {
+            foreach (BTVertex vertex in _viewModel.BTVertices)
             {
-                Regex regex = new Regex(@"^-?\d*$");
-                e.Handled = !regex.IsMatch(e.Text);
-            }
-            else
-            {
-                Regex regex = new Regex(@"^\d+$");
-                e.Handled = !regex.IsMatch(e.Text);
+                vertex.Selected = false;
             }
         }
 
@@ -117,25 +140,22 @@ namespace oop_project.Views
                     }
                 }
             }
-            else if(!Keyboard.IsKeyDown(Key.LeftCtrl))
+            else if (!Keyboard.IsKeyDown(Key.LeftCtrl))
             {
                 clearSelected();
             }
 
-            setDeleteButtonState();
+            updateDeleteButtonState();
         }
 
-        private void clearSelected()
+        private void BTVertices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            foreach (BTVertex vertex in viewModel.BTVertices)
-            {
-                vertex.Selected = false;
-            }
+            updateDeleteAllButtonState();
         }
 
         private void graphBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            last = e.GetPosition(graphVertices);
+            _lastMousePos = e.GetPosition(graphVertices);
             graphBorder.CaptureMouse();
 
             handleSelection(e);
@@ -147,22 +167,66 @@ namespace oop_project.Views
         }
 
         /// <summary>
+        /// Update last caret index
+        /// </summary>
+        private void NodeValue_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+            _lastNodeValueCaretIndex = NodeValue.CaretIndex;
+        }
+
+        /// <summary>
+        /// NodeValue validation
+        /// </summary>
+        private void NodeValue_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Restoration of old text triggers another event, ignore it
+            if (NodeValue.Text == _lastNodeValueText)
+            {
+                return;
+            }
+
+            // Do not accept text with whitespaces
+            if (NodeValue.Text.Any(c => char.IsWhiteSpace(c)))
+            {
+                NodeValue.Text = _lastNodeValueText;
+                NodeValue.CaretIndex = _lastNodeValueCaretIndex;
+
+                return;
+            }
+
+            // Only numbers, may start with '-'
+            Regex regex = new Regex(@"^-?[0-9]*$");
+
+            if (regex.IsMatch(NodeValue.Text))
+            {
+                // Accept new text
+
+                _lastNodeValueText = NodeValue.Text;
+                _lastNodeValueCaretIndex = NodeValue.CaretIndex;
+
+                updateAddButtonState();
+            }
+            else
+            {
+                // Restore previous text
+
+                NodeValue.Text = _lastNodeValueText;
+                NodeValue.CaretIndex = _lastNodeValueCaretIndex;
+            }
+        }
+
+        /// <summary>
         /// Add node
         /// </summary>
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.AddNodeCommand.Execute(NodeValue.Text);
+            if (Add.IsEnabled)
+            {
+                _viewModel.AddNodeCommand.Execute(NodeValue.Text);
 
-            NodeValue.Clear();
-            NodeValue.Focus();
-        }
-
-        /// <summary>
-        /// Disable Add button if TextBox is empty
-        /// </summary>
-        private void NodeValue_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            Add.IsEnabled = !string.IsNullOrWhiteSpace(NodeValue.Text);
+                NodeValue.Clear();
+                NodeValue.Focus();
+            }
         }
 
         /// <summary>
@@ -180,9 +244,9 @@ namespace oop_project.Views
             if (result == MessageBoxResult.Yes)
             {
                 // Delete selected
-                viewModel.DeleteNodesCommand.Execute(null);
+                _viewModel.DeleteNodesCommand.Execute(null);
 
-                setDeleteButtonState();
+                updateDeleteButtonState();
                 NodeValue.Focus();
             }
         }
@@ -194,7 +258,7 @@ namespace oop_project.Views
         {
             MessageBoxResult result = MessageBoxEx.Show(
                 owner: Application.Current.MainWindow,
-                text: "The current tree will be deleted.\nDo you wish to continue?",
+                text: "The current tree will be deleted.\n\tAre you sure?",
                 caption: "Delete All",
                 buttons: MessageBoxButton.OKCancel,
                 icon: MessageBoxImage.Warning);
@@ -202,51 +266,18 @@ namespace oop_project.Views
             if (result == MessageBoxResult.OK)
             {
                 // Reset data
-                viewModel.ResetTreeCommand.Execute(null);
+                _viewModel.ResetTreeCommand.Execute(null);
 
                 // Reset UI
                 resetUI();
 
-                setDeleteButtonState();
+                updateDeleteButtonState();
             }
-        }
-        private void resetUI()
-        {
-            // NodeValue input
-            NodeValue.Clear();
-
-            // Vertices transforms
-            translationVertices.X = 0;
-            translationVertices.Y = 0;
-
-            scaleVertices.CenterX = 0;
-            scaleVertices.CenterY = 0;
-            scaleVertices.ScaleX = 1;
-            scaleVertices.ScaleY = 1;
-
-            // Edges transforms
-            translationEdges.X = 0;
-            translationEdges.Y = 0;
-
-            scaleEdges.CenterX = 0;
-            scaleEdges.CenterY = 0;
-            scaleEdges.ScaleX = 1;
-            scaleEdges.ScaleY = 1;
-
-            NodeValue.Focus();
         }
 
         private void ResetView_Click(object sender, RoutedEventArgs e)
         {
             resetUI();
-        }
-
-        private void NodeValue_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            {
-                if (e.Key == Key.Space)
-                    e.Handled = true;
-            }
         }
 
         /// <summary>
@@ -261,17 +292,17 @@ namespace oop_project.Views
             //var position = e.GetPosition(graphVertices);
 
             // Panning vector
-            Vector v = e.GetPosition(graphVertices) - last;
+            Vector v = e.GetPosition(graphVertices) - _lastMousePos;
 
             // Apply the new translation
-            translationVertices.X += v.X * scaleVertices.ScaleX;
-            translationVertices.Y += v.Y * scaleVertices.ScaleY;
+            _translationVertices.X += v.X * _scaleVertices.ScaleX;
+            _translationVertices.Y += v.Y * _scaleVertices.ScaleY;
 
-            translationEdges.X += v.X * scaleEdges.ScaleX;
-            translationEdges.Y += v.Y * scaleEdges.ScaleY;
+            _translationEdges.X += v.X * _scaleEdges.ScaleX;
+            _translationEdges.Y += v.Y * _scaleEdges.ScaleY;
 
             // Update last mouse position
-            last = e.GetPosition(graphVertices);
+            _lastMousePos = e.GetPosition(graphVertices);
         }
 
         /// <summary>
@@ -279,52 +310,52 @@ namespace oop_project.Views
         /// </summary>
         private void graphBorder_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            double newScale = scaleVertices.ScaleX;
+            double newScale = _scaleVertices.ScaleX;
 
             // Determine zoom direction, return if not possible to zoom any further
             if (e.Delta > 0)
             {
-                if (scaleVertices.ScaleX == scaleMax) return;
+                if (_scaleVertices.ScaleX == _scaleMax) return;
 
-                newScale = scaleVertices.ScaleX + zoomSpeed;
+                newScale = _scaleVertices.ScaleX + _zoomSpeed;
             }
             else if (e.Delta < 0)
             {
-                if (scaleVertices.ScaleX == scaleMin) return;
+                if (_scaleVertices.ScaleX == _scaleMin) return;
 
-                newScale = scaleVertices.ScaleX - zoomSpeed;
+                newScale = _scaleVertices.ScaleX - _zoomSpeed;
             }
 
             // Clamp the zoom
-            newScale = Math.Clamp(newScale, scaleMin, scaleMax);
+            newScale = Math.Clamp(newScale, _scaleMin, _scaleMax);
 
             // Old scaling center
-            double oldCenterX = scaleVertices.CenterX;
-            double oldCenterY = scaleVertices.CenterY;
+            double oldCenterX = _scaleVertices.CenterX;
+            double oldCenterY = _scaleVertices.CenterY;
 
             // Current mouse position
             var position = e.GetPosition(graphVertices);
 
             // New scale center at mouse position
-            scaleVertices.CenterX = position.X;
-            scaleVertices.CenterY = position.Y;
+            _scaleVertices.CenterX = position.X;
+            _scaleVertices.CenterY = position.Y;
 
-            scaleEdges.CenterX = position.X;
-            scaleEdges.CenterY = position.Y;
+            _scaleEdges.CenterX = position.X;
+            _scaleEdges.CenterY = position.Y;
 
             // Compensate translations to keep the contents aligned with the mouse position
-            translationVertices.X += (scaleVertices.CenterX - oldCenterX) * (scaleVertices.ScaleX - 1);
-            translationVertices.Y += (scaleVertices.CenterY - oldCenterY) * (scaleVertices.ScaleY - 1);
+            _translationVertices.X += (_scaleVertices.CenterX - oldCenterX) * (_scaleVertices.ScaleX - 1);
+            _translationVertices.Y += (_scaleVertices.CenterY - oldCenterY) * (_scaleVertices.ScaleY - 1);
 
-            translationEdges.X += (scaleEdges.CenterX - oldCenterX) * (scaleEdges.ScaleX - 1);
-            translationEdges.Y += (scaleEdges.CenterY - oldCenterY) * (scaleEdges.ScaleY - 1);
+            _translationEdges.X += (_scaleEdges.CenterX - oldCenterX) * (_scaleEdges.ScaleX - 1);
+            _translationEdges.Y += (_scaleEdges.CenterY - oldCenterY) * (_scaleEdges.ScaleY - 1);
 
             // Apply the new scale
-            scaleVertices.ScaleX = newScale;
-            scaleVertices.ScaleY = newScale;
+            _scaleVertices.ScaleX = newScale;
+            _scaleVertices.ScaleY = newScale;
 
-            scaleEdges.ScaleX = newScale;
-            scaleEdges.ScaleY = newScale;
+            _scaleEdges.ScaleX = newScale;
+            _scaleEdges.ScaleY = newScale;
         }
     }
 }

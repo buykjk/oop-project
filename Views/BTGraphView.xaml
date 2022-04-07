@@ -33,10 +33,14 @@
                     </MultiBinding>
                 </Grid.Margin>
 
-                <Ellipse Stroke="Black" StrokeThickness="4" Fill="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="0"/>
-                <TextBlock Text="{Binding Path=Value}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="1"/>
+                <Ellipse Stroke="Black" StrokeThickness="4" Fill="White"
+                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="0"/>
+                <TextBlock Text="{Binding Path=Value}" FontWeight="Bold" FontSize="16"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="1"/>
                 <!--Hitbox for selection-->
-                <Ellipse x:Name="hitbox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="DeepSkyBlue" Opacity="0" Panel.ZIndex="2"/>
+                <Ellipse x:Name="hitbox"
+                         Fill="DeepSkyBlue" Opacity="0"
+                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="2"/>
             </Grid>
 
             <DataTemplate.Triggers>
@@ -87,8 +91,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true"
-                                CornerRadius="5" Width="75" Height="35" Cursor="Hand">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true" CornerRadius="5" Width="75" Height="35" Cursor="Hand">
                             <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -151,30 +154,36 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="5" Grid.Row="0">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
                 <Border VerticalAlignment="Stretch" Margin="3,0,0,0">
-                    <TextBox x:Name="NodeValue" PreviewKeyDown="NodeValue_PreviewKeyDown" PreviewTextInput="NumbersOnly" TextChanged="NodeValue_TextChanged" MaxLength="4" Cursor="IBeam" FontSize="20" Width="60" TextAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox x:Name="NodeValue" FontSize="20" MaxLength="4" TextAlignment="Center"
+                             Width="60" Cursor="IBeam" VerticalAlignment="Center"
+                             TextChanged="NodeValue_TextChanged" SelectionChanged="NodeValue_SelectionChanged"/>
                 </Border>
 
-                <Button x:Name="Add" IsEnabled="False" Command="{StaticResource UICommand-Add}" Content="Add" Margin="3,0,5,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
-                
-                <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
+                <Button x:Name="Add" Content="Add" Command="{StaticResource UICommand-Add}"
+                        IsEnabled="False" Margin="3,0,5,0" Style="{DynamicResource roundedButton}"/>
 
-                <Button x:Name="Delete" Command="{StaticResource UICommand-Delete}" Content="Delete" IsEnabled="False" Margin="5,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
-                <Button x:Name="DeleteAll" Command="{StaticResource UICommand-DeleteAll}" Content="Delete all" IsEnabled="False" Margin="3,0,5,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
-                
-                <Rectangle VerticalAlignment="Stretch" Width="1" Stroke="Gray" />
+                <Rectangle Stroke="Gray" Width="1" VerticalAlignment="Stretch"/>
 
-                <Button x:Name="ResetView" Command="{StaticResource UICommand-ResetView}" Content="Reset view" Margin="5,0,0,0" Style="{DynamicResource roundedButton}" Cursor="Hand"/>
+                <Button x:Name="Delete" Content="Delete" Command="{StaticResource UICommand-Delete}"
+                        IsEnabled="False" Margin="5,0,0,0" Style="{DynamicResource roundedButton}"/>
+                <Button x:Name="DeleteAll" Content="Delete all" Command="{StaticResource UICommand-DeleteAll}"
+                        IsEnabled="False" Margin="3,0,5,0" Style="{DynamicResource roundedButton}"/>
+
+                <Rectangle Stroke="Gray" Width="1" VerticalAlignment="Stretch"/>
+
+                <Button x:Name="ResetView" Content="Reset view" Command="{StaticResource UICommand-ResetView}"
+                        Margin="5,0,0,0" Style="{DynamicResource roundedButton}"/>
             </StackPanel>
 
             <Border x:Name="graphBorder" Grid.Row="1"
-                Background="White" BorderThickness="3" BorderBrush="Black" CornerRadius="5"
-                MouseLeftButtonDown="graphBorder_MouseLeftButtonDown" MouseLeftButtonUp="graphBorder_MouseLeftButtonUp"
-                MouseMove="graphBorder_MouseMove" MouseWheel="graphBorder_MouseWheel">
+                    Background="White" BorderThickness="3" BorderBrush="Black" CornerRadius="5"
+                    MouseMove="graphBorder_MouseMove" MouseWheel="graphBorder_MouseWheel"
+                    MouseLeftButtonDown="graphBorder_MouseLeftButtonDown" MouseLeftButtonUp="graphBorder_MouseLeftButtonUp">
                 <!--This Grid is for nice clipping-->
                 <Grid ClipToBounds="True">
-                    <ItemsControl x:Name="graphVertices" ItemsSource="{Binding Path=BTVertices, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="1">
+                    <ItemsControl x:Name="graphVertices" Panel.ZIndex="1" ItemsSource="{Binding Path=BTVertices, UpdateSourceTrigger=PropertyChanged}">
                         <ItemsControl.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -189,7 +198,7 @@
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
 
-                    <ItemsControl x:Name="graphEdges" ItemsSource="{Binding Path=BTEdges, UpdateSourceTrigger=PropertyChanged}" Panel.ZIndex="0">
+                    <ItemsControl x:Name="graphEdges" Panel.ZIndex="0" ItemsSource="{Binding Path=BTEdges, UpdateSourceTrigger=PropertyChanged}">
                         <ItemsControl.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>

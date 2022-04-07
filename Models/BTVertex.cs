@@ -11,12 +11,6 @@ namespace oop_project.Models
     {
         private bool _selected = false;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public BTVertex Left { get; set; }
-        public BTVertex Right { get; set; }
-        public int Value { get; set; }
-        public (int x, int y) Position { get; set; }
-
         public BTVertex()
         {
             // Empty constructor for JSON deserialization
@@ -27,6 +21,25 @@ namespace oop_project.Models
             Value = value;
             Left = null;
             Right = null;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public BTVertex Left { get; set; }
+        public BTVertex Right { get; set; }
+        public int Value { get; set; }
+        public (int x, int y) Position { get; set; }
+
+        // For selection-handling in View
+        // TODO does it break the MVVM pattern?
+        public bool Selected
+        {
+            get { return _selected; }
+            set
+            {
+                _selected = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected)));
+            }
         }
 
         public void PrintPretty(string indent, bool last, string pathToFile)
@@ -59,19 +72,6 @@ namespace oop_project.Models
             for (int i = 0; i < children.Count; i++)
             {
                 children[i].PrintPretty(indent, i == children.Count - 1, pathToFile);
-            }
-
-        }
-
-        // For selection-handling in View
-        // TODO does it break the MVVM pattern?
-        public bool Selected
-        {
-            get { return _selected; }
-            set
-            {
-                _selected = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected)));
             }
 
         }

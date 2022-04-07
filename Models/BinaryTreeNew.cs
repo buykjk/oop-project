@@ -9,12 +9,13 @@ namespace oop_project.Models
 {
     public class BinaryTreeNew
     {
-        public BTVertex Root { get; set; }
-
+        // TODO unnecessary, Root will be null by default
         public BinaryTreeNew()
         {
             Root = null;
         }
+
+        public BTVertex Root { get; set; }
 
         public void Add(int value)
         {
