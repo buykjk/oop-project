@@ -392,7 +392,7 @@ namespace oop_project.Views
                       "Shortcuts:\n" +
                       "Add:\t\tEnter\n" +
                       "Delete:\t\tD\n" +
-                      "Delete All:\tCtrl + D\n" +
+                      "Delete All:\t\tCtrl + D\n" +
                       "Reset View:\tCtrl + R\n" +
                       "Export to TXT:\tCtrl + S\n" +
                       "Export to JSON:\tCtrl + J\n" +
