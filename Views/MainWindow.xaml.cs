@@ -25,7 +25,9 @@ namespace oop_project.Views
         {
             InitializeComponent();
 
-            this.Title = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            Version v = Assembly.GetExecutingAssembly().GetName().Version;
+
+            this.Title = $"Binary Tree Visualizer v{v.Major}.{v.Minor}";
         }
     }
 }
